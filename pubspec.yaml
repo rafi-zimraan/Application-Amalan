@@ -42,6 +42,7 @@ flutter:
     - lib/assets/icons/location.png
     - lib/assets/icons/megaphone.png
     - lib/assets/images/mountains.jpg
+    - lib/assets/images/ImageApplication.png
     - lib/assets/icons/sun.png
     - lib/assets/icons/rainy-day.png
     - lib/assets/icons/cloudy.png
