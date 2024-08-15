@@ -1,0 +1,63 @@
+name: giveup
+description: "A new Flutter project."
+publish_to: "none"
+version: 0.1.0
+
+environment:
+  sdk: ">=3.3.1 <4.0.0"
+
+dependencies:
+  fl_chart: ^0.68.0
+  flutter:
+    sdk: flutter
+  flutter_bloc: ^8.1.6
+  flutter_clean_calendar: ^1.1.0
+  font_awesome_flutter: ^10.7.0
+  get: ^4.6.6
+  hijri: ^3.0.0
+  intl: ^0.17.0
+  path_provider: ^2.1.3
+  flutter_share: ^2.0.0
+  shared_preferences: ^2.2.3
+  simple_circular_progress_bar: ^1.0.2
+  uid: ^0.0.2
+  fluttertoast: ^8.2.6
+  http: ^1.2.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - lib/assets/images/backgroundImage1.jpg
+    - lib/assets/icons/logo.png
+    - lib/assets/icons/google.png
+    - lib/assets/icons/water.png
+    - lib/assets/icons/plane.png
+    - lib/assets/icons/sunrise.png
+    - lib/assets/icons/bell.png
+    - lib/assets/icons/location.png
+    - lib/assets/icons/megaphone.png
+    - lib/assets/images/mountains.jpg
+    - lib/assets/icons/sun.png
+    - lib/assets/icons/rainy-day.png
+    - lib/assets/icons/cloudy.png
+    - lib/assets/icons/clouds.png
+    - lib/assets/icons/no-food.png
+    - lib/assets/icons/mosque.png
+    - lib/assets/icons/zakat.png
+    - lib/assets/icons/zikir.png
+    - lib/assets/icons/alQuran.png
+    - lib/assets/icons/check.png
+    - lib/assets/icons/childMasjid.png
+    - lib/assets/icons/church.png
+    - lib/assets/icons/bigMasjid.png
+    - lib/assets/icons/borobudur.png
+    - lib/assets/icons/istanaMasjid.png
+    - lib/assets/icons/masjid.png
+    - lib/assets/icons/buddha.png
+    - lib/assets/sounds/adzan.mp3
+    - lib/assets/sounds/adzanSubuh.mp3
