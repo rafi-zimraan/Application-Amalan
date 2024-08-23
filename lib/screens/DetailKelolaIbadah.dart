@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:giveup/Controller/App_controller.dart';
+import 'package:giveup/screens/AudioSelectionWidget.dart';
 import 'package:giveup/screens/IconSelectionWidget.dart';
+import 'package:giveup/screens/NotificationSelectionWidget.dart';
+import 'package:giveup/screens/ReminderSelectionWidget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DetailKelolaIbadah extends StatefulWidget {
@@ -27,6 +30,7 @@ class DetailKelolaIbadah extends StatefulWidget {
 class _DetailKelolaIbadahState extends State<DetailKelolaIbadah> {
   final AppControler controller = Get.find<AppControler>();
   late String selectedIcon;
+  String selectedAudio = 'Bip';
 
   @override
   void initState() {
@@ -34,6 +38,17 @@ class _DetailKelolaIbadahState extends State<DetailKelolaIbadah> {
     selectedIcon = controller.getIcon(widget.title);
     controller.setRepeatText(widget.title);
     _loadSelectedIcon();
+    _loadSelectedAudio();
+  }
+
+  Future<void> _loadSelectedAudio() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? audioName = prefs.getString('selected_audio');
+    if (audioName != null) {
+      setState(() {
+        selectedAudio = audioName;
+      });
+    }
   }
 
   Future<void> _loadSelectedIcon() async {
@@ -47,26 +62,51 @@ class _DetailKelolaIbadahState extends State<DetailKelolaIbadah> {
   }
 
   Future<void> _saveSelectedIcon() async {
-    controller.updateIcon(widget.title, selectedIcon);
+    await controller.updateIcon(widget.title, selectedIcon);
     widget.onSaveIcon(selectedIcon);
-
-    // Simpan ikon yang dipilih ke dalam SharedPreferences
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('${widget.title}_iconPath', selectedIcon);
   }
 
   void _navigateToDetailScreen(
       BuildContext context, String label, String feature) async {
-    final selectedIconPath = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => IconSelectionWidget(title: widget.title),
-      ),
-    ) as String?;
+    String? selectedIconPath;
+    switch (feature) {
+      case 'icon':
+        selectedIconPath = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => IconSelectionWidget(title: widget.title),
+            )) as String?;
+        break;
+      case 'reminder':
+        selectedIconPath = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const ReminderSelectionWidget(),
+            )) as String?;
+        break;
+      case 'audio':
+        selectedIconPath = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const AudioSelectionWidget(),
+            )) as String?;
+        break;
+      case 'notification':
+        selectedIconPath = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const NotificationSelectionWidget(),
+            )) as String?;
+        break;
+      default:
+        print('No feature selected');
+    }
 
     if (selectedIconPath != null) {
       setState(() {
-        selectedIcon = selectedIconPath;
+        selectedIcon = selectedIconPath!;
       });
       _saveSelectedIcon();
     } else {
@@ -158,7 +198,7 @@ class _DetailKelolaIbadahState extends State<DetailKelolaIbadah> {
                 _buildRow(context, 'Ingatkan Pada', 'Sesuai Jadwal',
                     Icons.timer, Colors.black,
                     isTappable: true, feature: 'reminder'),
-                _buildRow(context, 'Audio Pengingat', 'Bip',
+                _buildRow(context, 'Audio Pengingat', selectedAudio,
                     Icons.multitrack_audio_sharp, Colors.black,
                     isTappable: true, feature: 'audio'),
                 _buildRow(context, 'Jenis Notifikasi', 'Banner',

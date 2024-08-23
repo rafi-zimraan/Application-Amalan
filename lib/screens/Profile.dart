@@ -132,8 +132,7 @@ class _ProfileState extends State<Profile> {
             SettingProfileComponent(
               iconPath: 'lib/assets/icons/bell.png',
               title: "Notifikasi",
-              subtitle:
-                  "Mode jangan ganggu, \nselalu bunyikan suara, tampilan visual",
+              subtitle: "Mode jangan ganggu, \nselalu bunyika suara",
               onPressed: () {},
             ),
             const SizedBox(height: 40),

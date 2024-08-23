@@ -13,18 +13,6 @@ class _IconSelectionWidgetState extends State<IconSelectionWidget> {
   int? selectedIconIndex;
   String? selectedIconPath;
 
-  // final List<IconData> icons = [
-  //   Icons.mosque,
-  //   Icons.star,
-  //   Icons.access_time,
-  //   Icons.people,
-  //   Icons.church,
-  //   Icons.directions_run,
-  //   Icons.local_cafe,
-  //   Icons.event,
-  //   Icons.school,
-  // ];
-
   final List<String> icons = [
     'lib/assets/icons/childMasjid.png',
     'lib/assets/icons/church.png',
@@ -63,7 +51,8 @@ class _IconSelectionWidgetState extends State<IconSelectionWidget> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setInt('${widget.title}_iconIndex', selectedIconIndex!);
       await prefs.setString('${widget.title}_iconPath', selectedIconPath ?? '');
-      Navigator.pop(context, selectedIconPath);
+      Navigator.pop(context,
+          selectedIconPath); // Mengembalikan path gambar ke DetailKelolaIbadah
     }
   }
 
@@ -88,9 +77,7 @@ class _IconSelectionWidgetState extends State<IconSelectionWidget> {
                   child: Container(
                     decoration: BoxDecoration(
                       border: Border.all(
-                        color: selectedIconIndex == index
-                            ? Colors.blue
-                            : Colors.grey,
+                        color: isSelectedBox ? Colors.blue : Colors.grey,
                         width: 2.0,
                       ),
                       borderRadius: BorderRadius.circular(8.0),

@@ -16,26 +16,11 @@ class CalendarDisplayIbadahComponent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dateNow = DateTime.now();
-    // final weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fir', 'Sat'];
 
     return Column(
       children: [
         const Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
-          // children: weekDays.map((day) {
-          //   return Container(
-          //     margin: const EdgeInsets.all(2.0),
-          //     child: Center(
-          //       child: Text(
-          //         day,
-          //         style: const TextStyle(
-          //           color: Colors.black,
-          //           fontWeight: FontWeight.bold,
-          //         ),
-          //       ),
-          //     ),
-          //   );
-          // }).toList(),
         ),
         SizedBox(
           height: 130,

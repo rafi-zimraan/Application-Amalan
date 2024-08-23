@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,6 +12,95 @@ class AppControler extends GetxController {
   final safarMode = false.obs;
   final repeatText = ''.obs;
   final selectedIcon = ''.obs;
+
+  var newListActivities = <Map<String, dynamic>>[].obs;
+
+  // Fungsi untuk menambahkan aktivitas ke dalam list dan menyimpannya ke SharedPreferences
+  void addListUserActivity(
+      String listName, IconData selectedIcon, String selectedOption) async {
+    newListActivities.add({
+      'activity': {
+        'name': listName,
+        'icon': selectedIcon.codePoint,
+      },
+      'option': selectedOption,
+    });
+    await saveListUserActivities(); // Save after adding the activity
+    update();
+  }
+
+// Fungsi untuk menyimpan list aktivitas ke SharedPreferences
+  Future<void> saveListUserActivities() async {
+    final prefs = await SharedPreferences.getInstance();
+    final activities = newListActivities
+        .map((activity) => {
+              'name': activity['activity']['name'],
+              'icon': activity['activity']['icon'],
+              'option': activity['option'],
+            })
+        .toList();
+    await prefs.setString('listActivities', jsonEncode(activities));
+  }
+
+// Fungsi untuk memuat list aktivitas dari SharedPreferences
+  Future<void> loadListUserActivities() async {
+    final prefs = await SharedPreferences.getInstance();
+    final activitiesString = prefs.getString('listActivities');
+    if (activitiesString != null) {
+      final List<dynamic> decodedList = jsonDecode(activitiesString);
+      final List<Map<String, dynamic>> activities = decodedList
+          .map((item) => {
+                'activity': {
+                  'name': item['name'],
+                  'icon': item['icon'],
+                },
+                'option': item['option'],
+              })
+          .toList();
+      newListActivities.assignAll(activities);
+    }
+  }
+
+  final Map<String, List<Map<String, String>>> ibadahItems = {
+    'Sholat': [
+      {'text': 'Magrib', 'imagePath': 'lib/assets/icons/mosque.png'},
+      {'text': 'Isya', 'imagePath': 'lib/assets/icons/mosque.png'},
+      {'text': 'Salat Tahajud', 'imagePath': 'lib/assets/icons/mosque.png'},
+      {'text': 'Subuh', 'imagePath': 'lib/assets/icons/mosque.png'},
+      {'text': 'Salat Duha', 'imagePath': 'lib/assets/icons/mosque.png'},
+      {'text': 'Jumat', 'imagePath': 'lib/assets/icons/mosque.png'},
+      {'text': 'Zuhur', 'imagePath': 'lib/assets/icons/mosque.png'},
+      {'text': 'Asar', 'imagePath': 'lib/assets/icons/mosque.png'},
+      {'text': 'Salat Tarawih', 'imagePath': 'lib/assets/icons/mosque.png'},
+    ],
+    'Puasa': [
+      {'text': 'Puasa Ramadhan', 'imagePath': 'lib/assets/icons/no-food.png'},
+      {'text': 'Puasa Syawal', 'imagePath': 'lib/assets/icons/no-food.png'},
+      {'text': 'Puasa Dzulhijjah', 'imagePath': 'lib/assets/icons/no-food.png'},
+      {'text': 'Puasa Arafah', 'imagePath': 'lib/assets/icons/no-food.png'},
+      {'text': 'Puasa Tasua', 'imagePath': 'lib/assets/icons/no-food.png'},
+      {'text': 'Puasa Senin', 'imagePath': 'lib/assets/icons/no-food.png'},
+      {'text': 'Puasa Kamis', 'imagePath': 'lib/assets/icons/no-food.png'},
+      {'text': 'Ayyamul Bidh', 'imagePath': 'lib/assets/icons/no-food.png'},
+    ],
+    'Al-Quran & Hadist': [
+      {'text': 'Baca AlQuran', 'imagePath': 'lib/assets/icons/alQuran.png'},
+      {
+        'text': 'Baca Surah Alkahfi',
+        'imagePath': 'lib/assets/icons/alQuran.png'
+      },
+    ],
+    'Sedekah & Zakat': [
+      {'text': 'Zakat Fitrah', 'imagePath': 'lib/assets/icons/zakat.png'},
+      {'text': 'Sedekah Subuh', 'imagePath': 'lib/assets/icons/zakat.png'},
+      {'text': 'Zakat Mal', 'imagePath': 'lib/assets/icons/zakat.png'},
+      {'text': 'Sedekah Jumat', 'imagePath': 'lib/assets/icons/zakat.png'},
+    ],
+    'Zikir': [
+      {'text': 'Zikir Pagi', 'imagePath': 'lib/assets/icons/zikir.png'},
+      {'text': 'Zikir Sore', 'imagePath': 'lib/assets/icons/zikir.png'},
+    ],
+  };
 
   void setRepeatText(String element) {
     if (element == 'Jumat') {
@@ -74,7 +164,6 @@ class AppControler extends GetxController {
 
     for (var key in prefs.getKeys()) {
       final value = prefs.get(key);
-
       if (value is String) {
         final iconPath = value;
         if (iconsList.contains(iconPath)) {
@@ -89,6 +178,7 @@ class AppControler extends GetxController {
       icons[item] = iconPath;
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString(item, iconPath);
+      update();
     }
   }
 
@@ -667,12 +757,6 @@ class AppControler extends GetxController {
     7: "Ahad",
   }.obs;
 
-  // Future<void> saveUserActivities() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   String activitiesJson = jsonEncode(userActivityLogs);
-  //   await prefs.setString('userActivites', activitiesJson);
-  // }
-
   void addUserActivityLog(Map<String, dynamic> log) {
     final DateTime now = DateTime.now();
     final DateTime logDate = log['completed_at'] is DateTime
@@ -700,6 +784,7 @@ class AppControler extends GetxController {
   void removeUserActivityLog(int activityId) {
     userActivityLogs.removeWhere((log) => log['activity_id'] == activityId);
     saveUserActivities();
+    update();
   }
 
   void saveUserActivities() async {

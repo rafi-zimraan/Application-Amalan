@@ -24,15 +24,18 @@ class HeaderSholatComponent extends StatelessWidget {
               ),
             ],
           ),
-          const Row(
-            children: [
-              Icon(Icons.explore, color: Colors.white),
-              SizedBox(width: 10),
-              Text(
-                'Kiblat',
-                style: TextStyle(color: Colors.white, fontSize: 18),
-              ),
-            ],
+          Container(
+            padding: const EdgeInsets.all(8.0),
+            child: const Row(
+              children: [
+                Icon(Icons.explore, color: Colors.white),
+                SizedBox(width: 10),
+                Text(
+                  'Kiblat',
+                  style: TextStyle(color: Colors.white, fontSize: 18),
+                ),
+              ],
+            ),
           ),
         ],
       ),

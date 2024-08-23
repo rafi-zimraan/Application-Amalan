@@ -23,6 +23,7 @@ dependencies:
   uid: ^0.0.2
   fluttertoast: ^8.2.6
   http: ^1.2.2
+  audioplayers: ^6.0.0
 
 dev_dependencies:
   flutter_test:
@@ -60,5 +61,8 @@ flutter:
     - lib/assets/icons/istanaMasjid.png
     - lib/assets/icons/masjid.png
     - lib/assets/icons/buddha.png
-    - lib/assets/sounds/adzan.mp3
-    - lib/assets/sounds/adzanSubuh.mp3
+    - assets/adzan.mp3
+    - assets/adzanSubuh.mp3
+    - assets/alaram.mp3
+    - assets/javaMessage.mp3
+    - assets/jepangMessage.mp3

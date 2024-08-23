@@ -7,6 +7,7 @@ import 'package:giveup/components/Bottom_sheet_content_today_component.dart';
 import 'package:giveup/components/Calendar_display_ibadah_component.dart';
 import 'package:giveup/components/Date_display_ibadah_component.dart';
 import 'package:giveup/components/Section_title_today_component.dart';
+import 'package:giveup/screens/SelectableButtonActivity.dart';
 import 'package:intl/intl.dart';
 import 'package:uid/uid.dart';
 
@@ -20,12 +21,15 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   final AppControler app = Get.find();
   DateTime _selectedDay = DateTime.now();
+  final String defaultImagePath = 'lib/assets/icons/childMasjid.png';
+  List<Map<String, dynamic>> userActivities = [];
 
   @override
   void initState() {
     super.initState();
     app.loadUserActivityLogs();
     app.fetchPrayerTimes();
+    userActivities = app.userActivities ?? [];
   }
 
   void _onSelectedDate(DateTime selectedDate) {
@@ -48,21 +52,17 @@ class _HomeState extends State<Home> {
     final DateFormat formatter = DateFormat('yyyy-MM-dd');
     final String formattedDate = formatter.format(date);
     final String today = formatter.format(DateTime.now());
-
     if (activity['category']['name'] == "Sholat") {
       return true;
     }
-
     return formattedDate.compareTo(today) <= 0;
   }
 
-// validasi untuk mengchecklist tanggal yang sudah berlalu
   void _validateAndCheck(bool? newValue, Map<String, dynamic> activity) {
     final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
     final String selectedDate = dateFormat.format(_selectedDay);
     final String todayDate = dateFormat.format(DateTime.now());
 
-    // Jika tanggal yang dipilih adalah hari ini, lakukan validasi waktu
     if (selectedDate == todayDate &&
         activity['category']['name'] == "Sholat Wajib") {
       final DateFormat timeFormat = DateFormat('HH:mm');
@@ -96,6 +96,15 @@ class _HomeState extends State<Home> {
     }
   }
 
+  void updateActivityIcon(String activityName, String newIconPath) {
+    for (var activity in userActivities) {
+      if (activity['activity']['name'] == activityName) {
+        activity['activity']['icon'] = newIconPath;
+        break;
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -118,11 +127,52 @@ class _HomeState extends State<Home> {
                     onDateSelected: _onSelectedDate,
                     events: const {},
                   ),
-                  const Divider(),
+                  const SizedBox(width: 45),
+                  SingleChildScrollView(
+                    scrollDirection:
+                        Axis.horizontal, // Mengatur scroll secara horizontal
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        SelectableButtonActivity(
+                          text: "All",
+                          onTap: () {},
+                        ),
+                        const SizedBox(width: 10),
+                        SelectableButtonActivity(
+                          text: "New Activity",
+                          icon: Icons.format_list_bulleted_add,
+                          onTap: () {},
+                          isSpecialButton: true,
+                        ),
+                        const SizedBox(width: 10),
+                        Obx(
+                          () {
+                            return Row(
+                              children: app.newListActivities.map((activity) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(
+                                      right: 10), // Jarak antara elemen
+                                  child: SelectableButtonActivity(
+                                    text: activity['activity']['name'],
+                                    icon: IconData(
+                                      activity['activity']['icon'],
+                                      fontFamily: 'MaterialIcons',
+                                    ),
+                                    onTap: () {},
+                                  ),
+                                );
+                              }).toList(),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 5),
                   Expanded(
                     child: Obx(() {
                       final bool isHaidMode = app.haidMode.value;
-
                       final activityLogsForSelectedDate =
                           app.getActivityLogsForDate(_selectedDay) ?? [];
                       final userActivities = app.userActivities ?? [];
@@ -130,7 +180,6 @@ class _HomeState extends State<Home> {
                       final completedActivities = activityLogsForSelectedDate
                           .where((log) => log['completed_at'] != null)
                           .toList();
-
                       final incompletedActivities =
                           userActivities.where((element) {
                         final activity =
@@ -161,8 +210,14 @@ class _HomeState extends State<Home> {
                             ...incompletedActivities.map((element) {
                               final activity =
                                   element['activity'] as Map<String, dynamic>?;
+                              final iconPath =
+                                  app.getIcon(activity?['name'] ?? '');
+
                               return ActivityTileTodayComponent(
-                                activity: activity ?? {},
+                                activity: {
+                                  ...activity ?? {},
+                                  'imagePath': iconPath,
+                                },
                                 isCompleted: false,
                                 isBloked:
                                     _isEditable(_selectedDay, activity ?? {}),
@@ -182,11 +237,16 @@ class _HomeState extends State<Home> {
                                 orElse: () => {'activity': {}},
                               )['activity'] as Map<String, dynamic>?;
 
+                              final iconPath =
+                                  app.getIcon(activity?['name'] ?? '');
+
                               return ActivityTileTodayComponent(
-                                activity: activity ?? {},
+                                activity: {
+                                  ...activity ?? {},
+                                  'imagePath': iconPath,
+                                },
                                 isCompleted: true,
-                                isBloked:
-                                    _isEditable(_selectedDay, activity ?? {}),
+                                isBloked: false,
                                 selectedDay: _selectedDay,
                                 onChanged: (newValue) =>
                                     _validateAndCheck(newValue, activity ?? {}),
@@ -199,9 +259,8 @@ class _HomeState extends State<Home> {
                   ),
                 ],
               ),
-              Positioned(
-                bottom: 0,
-                right: 0,
+              Align(
+                alignment: Alignment.bottomRight,
                 child: FloatingActionButton(
                   onPressed: _showBottomSheet,
                   backgroundColor: Colors.blue,

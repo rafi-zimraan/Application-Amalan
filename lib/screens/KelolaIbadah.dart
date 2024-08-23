@@ -16,47 +16,6 @@ class KelolaIbadah extends StatefulWidget {
 class _KelolaIbadahState extends State<KelolaIbadah> {
   final AppControler app = Get.find();
 
-  final Map<String, List<Map<String, String>>> ibadahItems = {
-    'Sholat': [
-      {'text': 'Magrib', 'imagePath': 'lib/assets/icons/mosque.png'},
-      {'text': 'Isya', 'imagePath': 'lib/assets/icons/mosque.png'},
-      {'text': 'Salat Tahajud', 'imagePath': 'lib/assets/icons/mosque.png'},
-      {'text': 'Subuh', 'imagePath': 'lib/assets/icons/mosque.png'},
-      {'text': 'Salat Duha', 'imagePath': 'lib/assets/icons/mosque.png'},
-      {'text': 'Jumat', 'imagePath': 'lib/assets/icons/mosque.png'},
-      {'text': 'Zuhur', 'imagePath': 'lib/assets/icons/mosque.png'},
-      {'text': 'Asar', 'imagePath': 'lib/assets/icons/mosque.png'},
-      {'text': 'Salat Tarawih', 'imagePath': 'lib/assets/icons/mosque.png'},
-    ],
-    'Puasa': [
-      {'text': 'Puasa Ramadhan', 'imagePath': 'lib/assets/icons/no-food.png'},
-      {'text': 'Puasa Syawal', 'imagePath': 'lib/assets/icons/no-food.png'},
-      {'text': 'Puasa Dzulhijjah', 'imagePath': 'lib/assets/icons/no-food.png'},
-      {'text': 'Puasa Arafah', 'imagePath': 'lib/assets/icons/no-food.png'},
-      {'text': 'Puasa Tasua', 'imagePath': 'lib/assets/icons/no-food.png'},
-      {'text': 'Puasa Senin', 'imagePath': 'lib/assets/icons/no-food.png'},
-      {'text': 'Puasa Kamis', 'imagePath': 'lib/assets/icons/no-food.png'},
-      {'text': 'Ayyamul Bidh', 'imagePath': 'lib/assets/icons/no-food.png'},
-    ],
-    'Al-Quran & Hadist': [
-      {'text': 'Baca AlQuran', 'imagePath': 'lib/assets/icons/alQuran.png'},
-      {
-        'text': 'Baca Surah Alkahfi',
-        'imagePath': 'lib/assets/icons/alQuran.png'
-      },
-    ],
-    'Sedekah & Zakat': [
-      {'text': 'Zakat Fitrah', 'imagePath': 'lib/assets/icons/zakat.png'},
-      {'text': 'Sedekah Subuh', 'imagePath': 'lib/assets/icons/zakat.png'},
-      {'text': 'Zakat Mal', 'imagePath': 'lib/assets/icons/zakat.png'},
-      {'text': 'Sedekah Jumat', 'imagePath': 'lib/assets/icons/zakat.png'},
-    ],
-    'Zikir': [
-      {'text': 'Zikir Pagi', 'imagePath': 'lib/assets/icons/zikir.png'},
-      {'text': 'Zikir Sore', 'imagePath': 'lib/assets/icons/zikir.png'},
-    ],
-  };
-
   @override
   void initState() {
     super.initState();
@@ -66,9 +25,10 @@ class _KelolaIbadahState extends State<KelolaIbadah> {
   Future<void> _loadSavedIcons() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      ibadahItems.forEach((category, items) {
+      app.ibadahItems.forEach((category, items) {
         for (var item in items) {
-          String? savedIconPath = prefs.getString(item['text']!);
+          // String? savedIconPath = prefs.getString(item['text']!);
+          String? savedIconPath = prefs.getString('${item['text']}_iconPath');
           if (savedIconPath != null) {
             item['imagePath'] = savedIconPath;
           }
@@ -80,11 +40,11 @@ class _KelolaIbadahState extends State<KelolaIbadah> {
   void _updateIcon(String name, String newIconPath) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      ibadahItems.forEach((category, items) {
+      app.ibadahItems.forEach((category, items) {
         for (var item in items) {
           if (item['text'] == name) {
             item['imagePath'] = newIconPath;
-            prefs.setString(name, newIconPath);
+            prefs.setString('$item', newIconPath);
           }
         }
       });
@@ -117,7 +77,7 @@ class _KelolaIbadahState extends State<KelolaIbadah> {
 
   List<Widget> _buildIbadahSections() {
     List<Widget> sections = [];
-    ibadahItems.forEach((title, items) {
+    app.ibadahItems.forEach((title, items) {
       sections.add(
         KelolaSectionComponent(
           title: title,
