@@ -12,7 +12,7 @@ class AppControler extends GetxController {
   final safarMode = false.obs;
   final repeatText = ''.obs;
   final selectedIcon = ''.obs;
-
+  var showAllActivity = false.obs;
   var newListActivities = <Map<String, dynamic>>[].obs;
 
   // Fungsi untuk menambahkan aktivitas ke dalam list dan menyimpannya ke SharedPreferences
@@ -22,10 +22,10 @@ class AppControler extends GetxController {
       'activity': {
         'name': listName,
         'icon': selectedIcon.codePoint,
+        'option': selectedOption,
       },
-      'option': selectedOption,
     });
-    await saveListUserActivities(); // Save after adding the activity
+    await saveListUserActivities();
     update();
   }
 
@@ -53,8 +53,8 @@ class AppControler extends GetxController {
                 'activity': {
                   'name': item['name'],
                   'icon': item['icon'],
+                  'option': item['option'],
                 },
-                'option': item['option'],
               })
           .toList();
       newListActivities.assignAll(activities);

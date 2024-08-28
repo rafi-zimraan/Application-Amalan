@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:get/get.dart';
-import 'package:giveup/Controller/App_controller.dart';
 
 class ActivityTileTodayComponent extends StatelessWidget {
   final Map<String, dynamic> activity;
@@ -21,7 +18,7 @@ class ActivityTileTodayComponent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AppControler app = Get.find();
+    // final AppControler app = Get.find();
 
     return ListTile(
       leading: Image.asset(activity['icon']),
@@ -59,14 +56,9 @@ class ActivityTileTodayComponent extends StatelessWidget {
       trailing: Checkbox(
         value: isCompleted,
         onChanged: (bool? newValue) {
+          onChanged?.call(newValue);
           if (isBloked) {
             onChanged?.call(newValue);
-          } else {
-            Fluttertoast.showToast(
-              msg: "Tidak bisa dicentang pada tanggal ini",
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM,
-            );
           }
         },
         activeColor: Colors.blue,
@@ -75,3 +67,10 @@ class ActivityTileTodayComponent extends StatelessWidget {
     );
   }
 }
+// else {
+//             Fluttertoast.showToast(
+//               msg: "Tidak bisa dicentang pada tanggal ini",
+//               toastLength: Toast.LENGTH_SHORT,
+//               gravity: ToastGravity.BOTTOM,
+//             );
+//           }

@@ -7,6 +7,7 @@ import 'package:giveup/components/Bottom_sheet_content_today_component.dart';
 import 'package:giveup/components/Calendar_display_ibadah_component.dart';
 import 'package:giveup/components/Date_display_ibadah_component.dart';
 import 'package:giveup/components/Section_title_today_component.dart';
+import 'package:giveup/screens/ActivityWidget.dart';
 import 'package:giveup/screens/SelectableButtonActivity.dart';
 import 'package:intl/intl.dart';
 import 'package:uid/uid.dart';
@@ -23,13 +24,16 @@ class _HomeState extends State<Home> {
   DateTime _selectedDay = DateTime.now();
   final String defaultImagePath = 'lib/assets/icons/childMasjid.png';
   List<Map<String, dynamic>> userActivities = [];
+  bool _isActivityWidgetVisible = false;
+  final Map<String, dynamic> _selectedActivity = {};
 
   @override
   void initState() {
     super.initState();
+    app.loadListUserActivities();
     app.loadUserActivityLogs();
     app.fetchPrayerTimes();
-    userActivities = app.userActivities ?? [];
+    userActivities = app.userActivities;
   }
 
   void _onSelectedDate(DateTime selectedDate) {
@@ -81,27 +85,21 @@ class _HomeState extends State<Home> {
     }
 
     if (newValue ?? false) {
-      app.addUserActivityLog({
-        'id': UId.getId(),
-        'activity_id': activity['id'],
-        'completed_at': _selectedDay,
-      });
-      Fluttertoast.showToast(
-        msg: "${activity['name']} berhasil dicentang",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-      );
+      if (!app.userActivityLogs
+          .any((log) => log['activity_id'] == activity['id'])) {
+        app.addUserActivityLog({
+          'id': UId.getId(),
+          'activity_id': activity['id'],
+          'completed_at': _selectedDay,
+        });
+        Fluttertoast.showToast(
+          msg: "${activity['name']} berhasil dicentang",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+        );
+      }
     } else {
       app.removeUserActivityLog(activity['id']);
-    }
-  }
-
-  void updateActivityIcon(String activityName, String newIconPath) {
-    for (var activity in userActivities) {
-      if (activity['activity']['name'] == activityName) {
-        activity['activity']['icon'] = newIconPath;
-        break;
-      }
     }
   }
 
@@ -129,20 +127,23 @@ class _HomeState extends State<Home> {
                   ),
                   const SizedBox(width: 45),
                   SingleChildScrollView(
-                    scrollDirection:
-                        Axis.horizontal, // Mengatur scroll secara horizontal
+                    scrollDirection: Axis.horizontal,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         SelectableButtonActivity(
                           text: "All",
-                          onTap: () {},
+                          onTap: () {
+                            setState(() {
+                              _isActivityWidgetVisible = false;
+                            });
+                          },
                         ),
                         const SizedBox(width: 10),
                         SelectableButtonActivity(
                           text: "New Activity",
                           icon: Icons.format_list_bulleted_add,
-                          onTap: () {},
+                          onTap: _showBottomSheet,
                           isSpecialButton: true,
                         ),
                         const SizedBox(width: 10),
@@ -150,16 +151,37 @@ class _HomeState extends State<Home> {
                           () {
                             return Row(
                               children: app.newListActivities.map((activity) {
+                                final activityName = activity['activity']
+                                        ['name'] ??
+                                    'Unnamed Activity';
+                                final iconCode = activity['activity']['icon'];
+                                final selectedOption = activity['activity']
+                                        ['option'] ??
+                                    'No Option';
+
                                 return Padding(
-                                  padding: const EdgeInsets.only(
-                                      right: 10), // Jarak antara elemen
+                                  padding: const EdgeInsets.only(right: 10),
                                   child: SelectableButtonActivity(
-                                    text: activity['activity']['name'],
-                                    icon: IconData(
-                                      activity['activity']['icon'],
-                                      fontFamily: 'MaterialIcons',
-                                    ),
-                                    onTap: () {},
+                                    text: activityName,
+                                    icon: iconCode != null
+                                        ? IconData(iconCode,
+                                            fontFamily: 'MaterialIcons')
+                                        : Icons.error,
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ActivityWidget(
+                                            listName: activityName,
+                                            selectedIcon: iconCode != null
+                                                ? IconData(iconCode,
+                                                    fontFamily: 'MaterialIcons')
+                                                : Icons.error,
+                                            selectedOption: selectedOption,
+                                          ),
+                                        ),
+                                      );
+                                    },
                                   ),
                                 );
                               }).toList(),
@@ -170,6 +192,18 @@ class _HomeState extends State<Home> {
                     ),
                   ),
                   const SizedBox(height: 5),
+                  Visibility(
+                    visible: _isActivityWidgetVisible,
+                    child: ActivityWidget(
+                      listName: _selectedActivity['name'] ?? 'No Name',
+                      selectedIcon: _selectedActivity['icon'] != null
+                          ? IconData(_selectedActivity['icon'],
+                              fontFamily: 'MaterialIcons')
+                          : Icons.error,
+                      selectedOption:
+                          _selectedActivity['option'] ?? 'No Option',
+                    ),
+                  ),
                   Expanded(
                     child: Obx(() {
                       final bool isHaidMode = app.haidMode.value;
@@ -246,7 +280,8 @@ class _HomeState extends State<Home> {
                                   'imagePath': iconPath,
                                 },
                                 isCompleted: true,
-                                isBloked: false,
+                                isBloked:
+                                    _isEditable(_selectedDay, activity ?? {}),
                                 selectedDay: _selectedDay,
                                 onChanged: (newValue) =>
                                     _validateAndCheck(newValue, activity ?? {}),
@@ -259,14 +294,16 @@ class _HomeState extends State<Home> {
                   ),
                 ],
               ),
-              Align(
-                alignment: Alignment.bottomRight,
-                child: FloatingActionButton(
-                  onPressed: _showBottomSheet,
-                  backgroundColor: Colors.blue,
-                  child: const Icon(
-                    Icons.add,
-                    color: Colors.white,
+              Positioned(
+                right: 0,
+                bottom: 0,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: FloatingActionButton(
+                    onPressed: () {
+                      _showBottomSheet();
+                    },
+                    child: const Icon(Icons.chat_rounded),
                   ),
                 ),
               ),

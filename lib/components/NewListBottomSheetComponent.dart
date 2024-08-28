@@ -29,7 +29,6 @@ class _NewListBottomSheetComponentState
     _loadPreferences();
   }
 
-  // Fungsi untuk menyimpan data ke SharedPreferences
   Future<void> _savePreferences() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('listName', _listName);
@@ -41,7 +40,6 @@ class _NewListBottomSheetComponentState
     await prefs.setString('selectedOption', _selectedOption);
   }
 
-  // Fungsi untuk memuat data dari SharedPreferences
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -236,7 +234,7 @@ class _NewListBottomSheetComponentState
             child: ElevatedButton(
               onPressed: () {
                 _savePreferences();
-                if (_selectedIcon != null) {
+                if (_selectedIcon != null && _selectedOption.isNotEmpty) {
                   app.addListUserActivity(
                       _listName, _selectedIcon!, _selectedOption);
                 } else {
